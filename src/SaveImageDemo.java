@@ -19,6 +19,8 @@ public class SaveImageDemo {
 			conn = DriverManager.getConnection(url, "sa", "sasuper");
 			if (conn != null) {
 				System.out.println("连接DB成功");
+			} else {
+				System.out.println("无法连接DB");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -32,7 +34,7 @@ public class SaveImageDemo {
 			FileOutputStream ous = null;
 			String sql = "SELECT hz.zgbh 'EmpID',hz.zgxm '員工姓名',hz.bmbh '部門代號',hz.bmmx '部門名稱',hz.userpho 'EmpPhoto',hz.faceimg11 '模板1',\r\n"
 					+ "hz.faceimg21 '模板2', hz.faceimg31 '模板3', hz.faceimg41 '模板4',hz.faceimg51 '模板5'\r\n"
-					+ "FROM hp_zd01 hz WHERE hz.zgbh in ('1332786')";
+					+ "FROM hp_zd01 hz WHERE hz.zgbh in ('1341722')";
 			PreparedStatement ps = conn.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
@@ -40,35 +42,46 @@ public class SaveImageDemo {
 				System.out.println(currRow);
 				String empName = rs.getString(2);
 				Blob ob = null;
-				//保存5张
-//				for(int i=5;i<10;i++) {
-//					ous = new FileOutputStream(
-//							new File("D:" + File.separator + "icons" + File.separator + empName.trim() + (i-4) + ".jpg"));
-//					ob = rs.getBlob(i);
-//				
-//				if(ob!=null) {
-//					long size = ob.length();
-//					byte bs[] = ob.getBytes(1, (int) size);
-//					ous.write(bs);
-//					System.out.println(empName.trim()+"员工的第"+(i-4)+"张照片保存成功");
-//				}else {
-//					System.out.println(empName.trim()+"员工的第"+(i-4)+"张照片不存在，该张照片保存失败！");				
-//				}
-//				}			
-				//保存一张
-				ous = new FileOutputStream(
-						new File("D:" + File.separator + "icons" + File.separator + empName.trim() + ".jpg"));
-				ob = rs.getBlob(5);
-				
-				if(ob!=null) {
-					long size = ob.length();
-					byte bs[] = ob.getBytes(1, (int) size);
-					ous.write(bs);
-					System.out.println(empName.trim()+"员工保存成功");
-				}else {
-					System.out.println(empName.trim()+"员工的照片不存在，该员工保存失败！");				
+				// 保存5张
+				for (int i = 5; i < 10; i++) {
+					File file = new File(
+							"D:" + File.separator + "icons" + File.separator + empName.trim() + (i - 4) + ".jpg");
+					if (!file.exists()) {
+						file.getParentFile().mkdir();
+						file.createNewFile();
+						ous = new FileOutputStream(file);
+					} else {
+						ous = new FileOutputStream(file);
+					}
+
+					ob = rs.getBlob(i);
+
+					if (ob != null) {
+						long size = ob.length();
+						byte bs[] = ob.getBytes(1, (int) size);
+						ous.write(bs);
+						System.out.println(empName.trim() + "员工的第" + (i - 4) + "张照片保存成功");
+					} else {
+						ous.close();
+						file.delete();
+						System.out.println(empName.trim() + "员工的第" + (i - 4) + "张照片不存在，该张照片保存失败！");
+					}
 				}
-				
+				// 保存一张
+				// ous = new FileOutputStream(
+				// new File("D:" + File.separator + "icons" + File.separator + empName.trim() +
+				// ".jpg"));
+				// ob = rs.getBlob(5);
+				//
+				// if(ob!=null) {
+				// long size = ob.length();
+				// byte bs[] = ob.getBytes(1, (int) size);
+				// ous.write(bs);
+				// System.out.println(empName.trim()+"员工保存成功");
+				// }else {
+				// System.out.println(empName.trim()+"员工的照片不存在，该员工保存失败！");
+				// }
+				//
 			}
 			ous.flush();
 			ous.close();
