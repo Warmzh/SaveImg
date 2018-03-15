@@ -46,12 +46,16 @@ public class SaveImageDemo {
 				for (int i = 5; i < 10; i++) {
 					File file = new File(
 							"D:" + File.separator + "icons" + File.separator + empName.trim() + (i - 4) + ".jpg");
-					if (!file.exists()) {
-						file.getParentFile().mkdir();
-						file.createNewFile();
-						ous = new FileOutputStream(file);
-					} else {
-						ous = new FileOutputStream(file);
+					try {
+						if (!file.exists()) {
+							file.getParentFile().mkdir();
+							file.createNewFile();
+							ous = new FileOutputStream(file);
+						} else {
+							ous = new FileOutputStream(file);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 
 					ob = rs.getBlob(i);
@@ -62,7 +66,7 @@ public class SaveImageDemo {
 						ous.write(bs);
 						System.out.println(empName.trim() + "员工的第" + (i - 4) + "张照片保存成功");
 					} else {
-						ous.close();
+						ous.close();//注意不能调换先后顺序
 						file.delete();
 						System.out.println(empName.trim() + "员工的第" + (i - 4) + "张照片不存在，该张照片保存失败！");
 					}
